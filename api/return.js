@@ -1,10 +1,20 @@
-// api/return.js
-module.exports = async (_req, res) => {
-res.setHeader("Content-Type", "text/html; charset=utf-8");
-res.status(200).send(
-`<html><body style="font-family: system-ui; padding: 24px">
-<h2>All set!</h2>
-<p>You can close this tab and return to the app.</p>
-</body></html>`
-);
-};
+export default function handler(req, res) {
+if (req.method === "GET") {
+// This is where Stripe will redirect after onboarding
+const { account_id } = req.query;
+
+if (account_id) {
+return res.status(200).json({
+message: "Onboarding complete!",
+account_id,
+});
+} else {
+return res.status(400).json({
+error: "No account_id provided in query.",
+});
+}
+} else {
+res.setHeader("Allow", ["GET"]);
+res.status(405).end(`Method ${req.method} Not Allowed`);
+}
+}
