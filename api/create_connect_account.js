@@ -1,27 +1,30 @@
 // api/create_connect_account.js
-
-const Stripe = require('stripe');
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+const Stripe = require("stripe");
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-08-27.basil" });
 
 module.exports = async (req, res) => {
-if (req.method !== 'POST') {
-res.setHeader('Allow', 'POST');
-return res.status(405).json({ error: 'Method not allowed' });
+if (req.method !== "POST") {
+res.setHeader("Allow", "POST");
+return res.status(405).json({ error: "Method not allowed" });
 }
 
 try {
-// You can pass email from the frontend, or set a test email here
-const { email } = req.body || { email: 'test@example.com' };
+const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+const { email, country } = body;
+
+if (!email || !country) {
+return res.status(400).json({ error: "Email and country are required" });
+}
 
 const account = await stripe.accounts.create({
-type: 'express',
-country: 'US',
+type: "express",
+country,
 email,
 });
 
 return res.status(200).json({ accountId: account.id });
 } catch (err) {
-console.error('Create Connect Account Error:', err);
+console.error("Create connect account error:", err);
 return res.status(500).json({ error: err.message });
 }
 };
